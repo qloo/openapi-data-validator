@@ -14,7 +14,10 @@
     "profile": "rm isolate-* && node --prof integrationTests/modelValidator.test.js && node --prof-process ./isolate* > results.txt && xdg-open results.txt"
   },
   "repository": {
-    "url": "https://github.com/rhosys/openapi-model-validator.js"
+    "url": "https://github.com/qloo/openapi-data-validator"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
   },
   "keywords": [
     "swagger",
@@ -29,13 +32,15 @@
     "nodejs",
     "javascript"
   ],
-  "author": "Rhosys Developers <developers@rhosys.ch>",
+  "author": "Qloo",
   "license": "Apache-2.0",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0",
     "ajv": "^8.5",
     "ajv-formats": "^2.1",
     "content-type": "^1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-promise": "^7.2.1",
     "lodash.clonedeep": "^4.5",
     "lodash.get": "^4.4",
     "media-typer": "^1.1",
@@ -54,12 +59,10 @@
     "commander": "^7.2.0",
     "coveralls": "^3.1.0",
     "error-object-polyfill": "^1.1.14",
-    "eslint": "^8.1.0",
     "eslint-config-cimpress-atsquad": "^1.0.67",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-mocha": "^8.0.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^5.1.0",
     "fs-extra": "^10.0.0",
     "luxon": "^2.0.2",
     "mocha": "^8.4.0",
