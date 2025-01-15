@@ -66,8 +66,6 @@ export function augmentAjvErrors(
 }
 
 function getCustomErrorMessage(e: ErrorObject): string {
-  console.log('util.ts getCustomErrorMessage() e:', e);
-
   let message: string;
 
   switch (true) {
@@ -105,7 +103,6 @@ export function ajvErrorsToValidatorError(
   errors: ErrorObject[]
 ): ValidationErrorItem[] {
   return errors.map(e => {
-    console.log('ajvErrorsToValidatorError() e:', e);
     const params: any = e.params;
     const required
       = params?.missingProperty
@@ -122,29 +119,21 @@ export function ajvErrorsToValidatorError(
           ? e.instancePath
           : e.schemaPath;
 
-    console.log('e.instancePath:', e.instancePath);
     const paramNameMatch = e.instancePath.match(/\.query\["(.+?)"\]/);
-    console.log('paramNameMatch:', paramNameMatch);
     let paramName = paramNameMatch ? paramNameMatch[1] : '';
-    console.log('paramName:', paramName);
 
     if (!paramName) {
       paramName = e.instancePath.split('.').slice(2).join('.');
     }
-    console.log('paramName2:', paramName);
 
     const originalPath = e.instancePath ?? e.schemaPath;
-    console.log('originalPath:', originalPath);
     let fullMessage = '';
 
     if (additionalProperty) {
-      console.log('additionalProperty');
       fullMessage = `request${originalPath} must NOT have additional property: '${params.additionalProperty}'`;
     } else if (required) {
-      console.log('required');
       fullMessage = `missing required property request${path}`;
     } else {
-      console.log('else');
       const customMessage = getCustomErrorMessage(e);
       fullMessage = `${paramName} ${customMessage}`;
     }
