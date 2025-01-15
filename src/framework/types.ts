@@ -204,7 +204,7 @@ export namespace OpenAPIV3 {
   }
 
   export interface notSchemaObject extends BaseSchemaObject {
-    not: Array<ReferenceObject | SchemaObject>;
+    not?: ReferenceObject | SchemaObject;
   }
 
   export type ArraySchemaObjectType = 'array';
@@ -256,6 +256,11 @@ export namespace OpenAPIV3 {
 
     // Library internal properties
     componentId?: string;
+
+    allOf?: Array<ReferenceObject | SchemaObject>;
+    oneOf?: Array<ReferenceObject | SchemaObject>;
+    anyOf?: Array<ReferenceObject | SchemaObject>;
+    not?: ReferenceObject | SchemaObject;
   }
 
   export interface DiscriminatorObject {

@@ -1,6 +1,6 @@
 {
-  "name": "openapi-data-validator",
-  "version": "0.0.0",
+  "name": "@qloo/openapi-data-validator",
+  "version": "0.0.2",
   "description": "Automatically validate API requests and responses with OpenAPI 3.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,7 +14,8 @@
     "profile": "rm isolate-* && node --prof integrationTests/modelValidator.test.js && node --prof-process ./isolate* > results.txt && xdg-open results.txt"
   },
   "repository": {
-    "url": "https://github.com/qloo/openapi-data-validator"
+    "type": "git",
+    "url": "git+https://github.com/qloo/openapi-data-validator.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -77,3 +78,4 @@
     "node": ">=14.5.0"
   }
 }
+
