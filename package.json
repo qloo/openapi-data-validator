@@ -1,6 +1,6 @@
 {
   "name": "@qloo/openapi-data-validator",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "Automatically validate API requests and responses with OpenAPI 3.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
