@@ -1,4 +1,4 @@
-import Ajv from 'ajv';
+import Ajv, { ErrorObject } from 'ajv';
 const { writeFile, readFile } = require('fs').promises;
 
 import {
@@ -52,15 +52,18 @@ export class RequestValidator {
   private options: RequestValidatorOptions;
   private validationModule: unknown = {};
   private ajv: Ajv;
+  private customErrorFn?: (e: ErrorObject) => string;
 
   constructor(
     apiDoc: OpenAPIV3.Document,
-    options: RequestValidatorOptions = {}
+    options: RequestValidatorOptions = {},
+    customErrorFn?: (e: ErrorObject) => string
   ) {
     this.middlewareCache = {};
     this.apiDoc = apiDoc;
     this.requestOpts.allowUnknownQueryParameters = options.allowUnknownQueryParameters;
     this.options = options;
+    this.customErrorFn = customErrorFn;
   }
 
   public validate(req: OpenApiRequest): void {
@@ -77,7 +80,7 @@ export class RequestValidator {
         this.middlewareCache[key] = this.buildMiddleware(key, route, req.method || req.httpMethod, contentType);
       }
     }
-    
+
     this.middlewareCache[key](req);
   }
 
@@ -161,8 +164,9 @@ export class RequestValidator {
       if (valid) {
         return;
       }
-      const errors = augmentAjvErrors([].concat(validator.errors ?? []));
-      const formattedErrors = ajvErrorsToValidatorError(errors);
+
+      const errors = augmentAjvErrors([].concat(validator.errors ?? []), data);
+      const formattedErrors = ajvErrorsToValidatorError(errors, this.customErrorFn);
       let message = 'No errors';
       if (formattedErrors.length) {
         message = formattedErrors.map(m => m.fullMessage).join(', ');
@@ -213,8 +217,9 @@ export class RequestValidator {
       if (valid) {
         return;
       }
-      const errors = augmentAjvErrors([].concat(validator.errors ?? []));
-      const formattedErrors = ajvErrorsToValidatorError(errors);
+
+      const errors = augmentAjvErrors([].concat(validator.errors ?? []), data);
+      const formattedErrors = ajvErrorsToValidatorError(errors, this.customErrorFn);
       // const message = this.ajv.errorsText(errors, { dataVar: 'request' });
       const message = formattedErrors.map(m => m.fullMessage).join(', ');
       const error: BadRequest = new BadRequest({

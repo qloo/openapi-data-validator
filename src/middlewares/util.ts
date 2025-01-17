@@ -49,9 +49,11 @@ export class ContentType {
 /**
  * (side-effecting) modifies the errors object
  * @param errors
+ * @param data
  */
 export function augmentAjvErrors(
-  errors: ErrorObject[] = []
+  errors: ErrorObject[] = [],
+  data: any
 ): ErrorObject[] {
   errors.forEach(e => {
     if (e.keyword === 'enum') {
@@ -61,47 +63,15 @@ export function augmentAjvErrors(
         ? `${e.message}: ${allowedEnumValues.join(', ')}`
         : e.message;
     }
+    e.data = data;
   });
   return errors;
 }
 
-function getCustomErrorMessage(e: ErrorObject): string {
-  let message: string;
-
-  switch (true) {
-    case e.message.includes('must match pattern "^(-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?)$"'):
-      message = 'invalid. Location must be in the form lat,lon (e.g. 40.726408,-73.994275)';
-      break;
-
-    case e.message.includes('must match pattern "^external\\.\\w+$"'):
-      message = 'must be a valid external source';
-      break;
-
-    // minimum case for page/take (ex: limit=1)
-    case e.keyword === 'minimum'
-    && e.params.limit === 1
-    && (e.instancePath.includes('.query.take') || e.instancePath.includes('.query.page')):
-      message = 'must be a positive integer';
-      break;
-
-    // maximum case for take (ex:limit=200)
-    case e.keyword === 'maximum'
-    && e.params.limit === 200
-    && e.instancePath.includes('.query.take'):
-      message = 'cannot exceed 1000';
-      break;
-
-    default:
-      message = e.message;
-      break;
-  }
-
-  return message;
-}
-
 export function ajvErrorsToValidatorError(
-  errors: ErrorObject[]
-): ValidationErrorItem[] {
+  errors: ErrorObject[],
+  customErrorFn?: (e: ErrorObject) => string
+) {
   return errors.map(e => {
     const params: any = e.params;
     const required
@@ -126,7 +96,13 @@ export function ajvErrorsToValidatorError(
       paramName = e.instancePath.split('.').slice(2).join('.');
     }
 
+    const paramValue = (e.data as any)?.query?.[paramName];
+
+    (e.data as any).paramName = paramName;
+    (e.data as any).paramValue = paramValue;
+
     const originalPath = e.instancePath ?? e.schemaPath;
+
     let fullMessage = '';
 
     if (additionalProperty) {
@@ -134,7 +110,9 @@ export function ajvErrorsToValidatorError(
     } else if (required) {
       fullMessage = `missing required property request${path}`;
     } else {
-      const customMessage = getCustomErrorMessage(e);
+      if (!customErrorFn) {
+      }
+      const customMessage = customErrorFn ? customErrorFn(e) : '';
       fullMessage = `${paramName} ${customMessage}`;
     }
 

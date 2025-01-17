@@ -40,7 +40,7 @@ export class OpenApiValidator {
         const ajvOpts = this.ajvOpts.preprocessor;
         const { SchemaPreprocessor } = require('./middlewares/parsers/schema.preprocessor');
         new SchemaPreprocessor(spec, ajvOpts).preProcess();
-        requestValidator = new RequestValidator(spec, this.ajvOpts.request);
+        requestValidator = new RequestValidator(spec, this.ajvOpts.request, this.options.customErrorFn);
       }
 
       requestValidator.validate(request);
@@ -53,7 +53,7 @@ export class OpenApiValidator {
     const ajvOpts = this.ajvOpts.preprocessor;
     const { SchemaPreprocessor } = require('./middlewares/parsers/schema.preprocessor');
     new SchemaPreprocessor(spec, ajvOpts).preProcess();
-    const requestValidator = new RequestValidator(spec, this.ajvOpts.request);
+    const requestValidator = new RequestValidator(spec, this.ajvOpts.request, this.options.customErrorFn);
     await requestValidator.compile(this.options.compiledFilePath);
   }
 
@@ -74,7 +74,7 @@ export class OpenApiValidator {
     const cloneDeep = require('lodash.clonedeep');
     const dereference = require('@apidevtools/json-schema-ref-parser/lib/dereference');
     const $Refs = require('@apidevtools/json-schema-ref-parser/lib/refs');
-    
+
     const handler = { schema: null, $refs: new $Refs() };
     // eslint-disable-next-line no-underscore-dangle
     const $ref = handler.$refs._add('');
@@ -86,7 +86,7 @@ export class OpenApiValidator {
   }
 
   public async loadValidator(): Promise<(request: OpenApiRequest) => Promise<void>> {
-    const requestValidator = new RequestValidator(null, this.ajvOpts.request);
+    const requestValidator = new RequestValidator(null, this.ajvOpts.request, this.options.customErrorFn);
     await requestValidator.loadCompiled(this.options.compiledFilePath);
     return async (request: OpenApiRequest): Promise<void> => {
       await requestValidator.validate(request);
@@ -96,6 +96,9 @@ export class OpenApiValidator {
   private validateOptions(options: OpenApiValidatorOpts): void {
     if (!options.apiSpec && !options.compiledFilePath) {
       throw Error('apiSpec required');
+    }
+    if (!options.customErrorFn) {
+      throw Error('customErrorFn required');
     }
   }
 

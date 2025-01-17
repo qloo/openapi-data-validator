@@ -1,5 +1,5 @@
 /* eslint-disable no-use-before-define */
-import { Options as AjvOptions } from 'ajv';
+import { Options as AjvOptions, ErrorObject } from 'ajv';
 
 /********
  Typescript string literals are broken and require this garbage to work: https://stackoverflow.com/questions/37978528/typescript-type-string-is-not-assignable-to-type so we'll break the allowed validation using typescript interfaces, we don't really care to use this for validation of the schema, so any place we use string literals we'll allow any "STRING" until it is fixed.
@@ -77,6 +77,7 @@ export type SerDesMap = {
 
 export interface OpenApiValidatorOpts {
   apiSpec: OpenAPIV3.Document | string;
+  customErrorFn?: (e: ErrorObject) => string
   compiledFilePath?: string;
   validateRequests?: boolean | ValidateRequestOpts;
   serDes?: SerDes[];
@@ -519,3 +520,5 @@ export class BadRequest extends Error implements ValidationError {
 }
 
 export { OpenAPIFrameworkArgs };
+
+export { ErrorObject };
