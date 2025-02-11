@@ -55,6 +55,7 @@ export function augmentAjvErrors(
   errors: ErrorObject[] = [],
   data: any
 ): ErrorObject[] {
+  console.log('openapi-data-validator util.ts augmentAjvErrors()');
   errors.forEach(e => {
     if (e.keyword === 'enum') {
       const params: any = e.params;
@@ -72,54 +73,68 @@ export function ajvErrorsToValidatorError(
   errors: ErrorObject[],
   customErrorFn?: (e: ErrorObject) => string
 ) {
-  return errors.map(e => {
-    const params: any = e.params;
-    const required
-      = params?.missingProperty
-      && `${e.instancePath}.${params.missingProperty}`;
-    const additionalProperty
-      = params?.additionalProperty
-      && `${e.instancePath}.${params.additionalProperty}`;
+  //console.log('openapi-data-validator util.ts ajvErrorsToValidatorError()');
+  //console.log('openapi-data-validator util.ts errors:', errors);
 
-    const path = required
-      ? required
-      : additionalProperty
-        ? additionalProperty
-        : e.instancePath
-          ? e.instancePath
-          : e.schemaPath;
+  if (errors.length === 0) {
+    return [];
+  }
 
-    const paramNameMatch = e.instancePath.match(/\.query\["(.+?)"\]/);
-    let paramName = paramNameMatch ? paramNameMatch[1] : '';
+  const e = errors[0];
+  const params: any = e.params;
+  const required
+    = params?.missingProperty && `${e.instancePath}.${params.missingProperty}`;
+  const additionalProperty
+    = params?.additionalProperty
+    && `${e.instancePath}.${params.additionalProperty}`;
 
-    if (!paramName) {
-      paramName = e.instancePath.split('.').slice(2).join('.');
+  const path = required
+    ? required
+    : additionalProperty
+      ? additionalProperty
+      : e.instancePath
+        ? e.instancePath
+        : e.schemaPath;
+
+  const paramNameMatch = e.instancePath.match(/\.query\["(.+?)"\]/);
+  let paramName = paramNameMatch ? paramNameMatch[1] : '';
+
+  if (!paramName) {
+    paramName = e.instancePath.split('.').slice(2).join('.');
+  }
+
+  const paramValue = (e.data as any)?.query?.[paramName];
+
+  (e.data as any).paramName = paramName;
+  (e.data as any).paramValue = paramValue;
+
+  const originalPath = e.instancePath ?? e.schemaPath;
+  let fullMessage = '';
+
+  if (!customErrorFn) {
+    throw new Error('customErrorFn not defined');
+  }
+  const customMessage = customErrorFn(e);
+  fullMessage = `${paramName} ${customMessage}`;
+
+  /*
+  if (additionalProperty) {
+    fullMessage = `request${originalPath} must NOT have additional property: '${params.additionalProperty}'`;
+  } else if (required) {
+    fullMessage = `missing required property request${path}`;
+  } else {
+    if (!customErrorFn) {
+      throw new Error('customErrorFn not defined');
     }
+    const customMessage = customErrorFn(e);
+    fullMessage = `${paramName} ${customMessage}`;
+  }
+   */
 
-    const paramValue = (e.data as any)?.query?.[paramName];
-
-    (e.data as any).paramName = paramName;
-    (e.data as any).paramValue = paramValue;
-
-    const originalPath = e.instancePath ?? e.schemaPath;
-
-    let fullMessage = '';
-
-    if (additionalProperty) {
-      fullMessage = `request${originalPath} must NOT have additional property: '${params.additionalProperty}'`;
-    } else if (required) {
-      fullMessage = `missing required property request${path}`;
-    } else {
-      if (!customErrorFn) {
-      }
-      const customMessage = customErrorFn ? customErrorFn(e) : '';
-      fullMessage = `${paramName} ${customMessage}`;
-    }
-
-    return {
-      path,
-      message: e.message,
-      fullMessage
-    };
-  });
+  return [{
+    path,
+    message: fullMessage,
+    fullMessage
+  }];
 }
+
