@@ -55,7 +55,6 @@ export function augmentAjvErrors(
   errors: ErrorObject[] = [],
   data: any
 ): ErrorObject[] {
-  console.log('openapi-data-validator util.ts augmentAjvErrors()');
   errors.forEach(e => {
     if (e.keyword === 'enum') {
       const params: any = e.params;
@@ -73,9 +72,6 @@ export function ajvErrorsToValidatorError(
   errors: ErrorObject[],
   customErrorFn?: (e: ErrorObject) => string
 ) {
-  //console.log('openapi-data-validator util.ts ajvErrorsToValidatorError()');
-  //console.log('openapi-data-validator util.ts errors:', errors);
-
   if (errors.length === 0) {
     return [];
   }
