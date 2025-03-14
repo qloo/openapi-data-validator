@@ -498,3 +498,19 @@ export declare class SchemaNotFoundError extends Error {
         message?: string;
     });
 }
+export declare class OpenApiValidationError extends Error {
+    path?: string;
+    errors: ValidationErrorItem[];
+    constructor(err: {
+        path: string;
+        message?: string;
+        errors?: ValidationErrorItem[];
+    });
+}
+export declare class OpenApiSchemaParseError extends Error {
+    path?: string;
+    constructor(err: {
+        path: string;
+        message?: string;
+    });
+}

@@ -442,10 +442,6 @@ export interface OpenApiRequest {
   pathParameters?: Record<string, unknown>;
 }
 
-// export type OpenApiRequestHandler = (
-//   req: OpenApiRequest
-// ) => void;
-
 export interface IJsonSchema {
   id?: string;
   $schema?: string;
@@ -523,6 +519,7 @@ export class BadRequest extends Error implements ValidationError {
  }
 }
 
+
 export { OpenAPIFrameworkArgs };
 
 export { ErrorObject };
@@ -562,4 +559,31 @@ export class SchemaNotFoundError extends Error {
     this.method = err.method
     this.message = `no schema found for ${err.method} ${err.path}`
  }
+}
+
+export class OpenApiValidationError extends Error {
+  path?: string;
+  errors!: ValidationErrorItem[];
+  constructor(err: {
+    path: string;
+    message?: string;
+    errors?: ValidationErrorItem[];
+  }) {
+    super('Request failed OpenAPI validation');
+    this.path = err.path;
+    this.message = err.message || 'Request failed OpenAPI validation'
+    this.errors = err.errors || [];
+ }
+}
+
+export class OpenApiSchemaParseError extends Error {
+  path?: string;
+  constructor(err: {
+    path: string;
+    message?: string;
+  }) {
+    super('Failed to parse OpenAPI schema');
+    this.path = err.path;
+    this.message = err.message || 'Failed to parse OpenAPI schema';
+  }
 }

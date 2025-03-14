@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SchemaNotFoundError = exports.BadRequest = exports.SerDesSingleton = void 0;
+exports.OpenApiSchemaParseError = exports.OpenApiValidationError = exports.SchemaNotFoundError = exports.BadRequest = exports.SerDesSingleton = void 0;
 class SerDesSingleton {
     serializer;
     deserializer;
@@ -51,4 +51,24 @@ class SchemaNotFoundError extends Error {
     }
 }
 exports.SchemaNotFoundError = SchemaNotFoundError;
+class OpenApiValidationError extends Error {
+    path;
+    errors;
+    constructor(err) {
+        super('Request failed OpenAPI validation');
+        this.path = err.path;
+        this.message = err.message || 'Request failed OpenAPI validation';
+        this.errors = err.errors || [];
+    }
+}
+exports.OpenApiValidationError = OpenApiValidationError;
+class OpenApiSchemaParseError extends Error {
+    path;
+    constructor(err) {
+        super('Failed to parse OpenAPI schema');
+        this.path = err.path;
+        this.message = err.message || 'Failed to parse OpenAPI schema';
+    }
+}
+exports.OpenApiSchemaParseError = OpenApiSchemaParseError;
 //# sourceMappingURL=types.js.map

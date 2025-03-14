@@ -68,7 +68,7 @@ class ParametersSchemaParser {
         const isKnownType = PARAM_TYPE[parameter.in];
         if (!isKnownType) {
             const message = `Parameter 'in' has incorrect value '${parameter.in}' for [${parameter.name}]`;
-            throw new types_1.BadRequest({ path: path, message: message });
+            throw new types_1.OpenApiSchemaParseError({ path: path, message: message });
         }
         const hasSchema = () => {
             const contentType = parameter.content && Object.keys(parameter.content)[0];
@@ -76,7 +76,7 @@ class ParametersSchemaParser {
         };
         if (!hasSchema()) {
             const message = `No available parameter in 'schema' or 'content' for [${parameter.name}]`;
-            throw new types_1.BadRequest({ path: path, message: message });
+            throw new types_1.OpenApiSchemaParseError({ path: path, message: message });
         }
     }
 }

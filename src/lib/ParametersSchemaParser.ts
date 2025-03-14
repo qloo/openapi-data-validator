@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { OpenAPIV3, ParametersSchema, BadRequest } from './types';
+import { OpenAPIV3, ParametersSchema, OpenApiSchemaParseError } from './types';
 import { dereferenceParameter, normalizeParameter } from './ParserUtil';
 import Ajv from 'ajv';
 
@@ -102,7 +102,7 @@ export class ParametersSchemaParser {
     const isKnownType = PARAM_TYPE[parameter.in as keyof typeof PARAM_TYPE];
     if (!isKnownType) {
       const message = `Parameter 'in' has incorrect value '${parameter.in}' for [${parameter.name}]`;
-      throw new BadRequest({ path: path, message: message });
+      throw new OpenApiSchemaParseError({ path: path, message: message });
     }
 
     const hasSchema = () => {
@@ -113,7 +113,7 @@ export class ParametersSchemaParser {
 
     if (!hasSchema()) {
       const message = `No available parameter in 'schema' or 'content' for [${parameter.name}]`;
-      throw new BadRequest({ path: path, message: message });
+      throw new OpenApiSchemaParseError({ path: path, message: message });
     }
   }
 }
