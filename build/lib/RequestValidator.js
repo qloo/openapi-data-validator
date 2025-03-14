@@ -87,7 +87,7 @@ class RequestValidator {
             const errors = (0, ValidationUtil_1.augmentAjvErrors)(validator.errors ?? [], data);
             const formattedErrors = (0, ValidationUtil_1.ajvErrorsToValidatorError)(errors, this.customErrorFn);
             const message = formattedErrors.map(m => m.fullMessage).join(', ');
-            const error = new types_1.BadRequest({
+            const error = new types_1.OpenApiValidationError({
                 path: req.route,
                 message,
             });

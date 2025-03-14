@@ -1,6 +1,6 @@
 {
   "name": "@qloo/openapi-data-validator",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Validate, coerce types, fill defaults for API requests using OpenAPI 3.0",
   "main": "build/index.js",
   "files": [

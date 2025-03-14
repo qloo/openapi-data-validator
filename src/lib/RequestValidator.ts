@@ -14,7 +14,7 @@ import {
   OpenApiRequest,
   RequestValidatorOptions,
   ValidateRequestOpts,
-  BadRequest,
+  OpenApiValidationError,
   ParametersSchema,
   BodySchema,
   OpenApiRequestHandler,
@@ -161,7 +161,7 @@ export class RequestValidator {
 
       // TODO: switch to just returning all the errors
       // allowing the caller to decide what to do with them
-      const error: BadRequest = new BadRequest({
+      const error: OpenApiValidationError = new OpenApiValidationError({
         path: req.route,
         message,
       });
