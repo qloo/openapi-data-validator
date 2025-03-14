@@ -1,17 +1,8 @@
 {
-  "compilerOptions": {
-    "declaration": true,
-    "target": "es2019",
-    "lib": ["es2019", "es2019.array"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "dist",
-    "sourceMap": false,
-    "resolveJsonModule": true,
-    "typeRoots": ["./node_modules/@types"]
-  },
-  "exclude": ["node_modules"],
-  "include": [
-    "src/**/*.ts",
-  ]
+	"extends": "./src/tsconfig.json",
+	"compilerOptions": {
+		"outDir": "./build",
+		"rootDir": "./src"
+	},
+  "exclude": [ "node_modules", "test", "build", "dist" ]
 }

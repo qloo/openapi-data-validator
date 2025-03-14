@@ -1,16 +1,18 @@
-import { RequestValidator } from './middlewares/openapi.request.validator';
+import { RequestValidator } from './lib/RequestValidator';
 import {
   OpenApiValidatorOpts,
   OpenApiRequest,
-  OpenAPIV3
-} from './framework/types';
-import { defaultSerDes } from './framework/base.serdes';
-import { AjvOptions } from './framework/ajvOptions';
-export { OpenApiValidatorOpts } from './framework/types';
+  OpenAPIV3,
+  ValidationResult,
+} from './lib/types';
+import { defaultSerDes } from './lib/BaseSerdes';
+import { AjvOptions } from './lib/ajvOptions';
+export { OpenApiValidatorOpts } from './lib/types';
 
 export class OpenApiValidator {
   readonly options: OpenApiValidatorOpts;
   readonly ajvOpts: AjvOptions;
+  private spec?: OpenAPIV3.Document;
 
   constructor(options: OpenApiValidatorOpts) {
     this.validateOptions(options);
@@ -29,32 +31,28 @@ export class OpenApiValidator {
     this.options = options;
     this.ajvOpts = new AjvOptions(options);
   }
-
-  createValidator(): (request: OpenApiRequest) => Promise<void> {
-    const specAsync = this.loadSpec(this.options.apiSpec);
-
-    let requestValidator;
-    return async (request: OpenApiRequest): Promise<void> => {
-      if (!requestValidator) {
-        const spec = await specAsync;
-        const ajvOpts = this.ajvOpts.preprocessor;
-        const { SchemaPreprocessor } = require('./middlewares/parsers/schema.preprocessor');
-        new SchemaPreprocessor(spec, ajvOpts).preProcess();
-        requestValidator = new RequestValidator(spec, this.ajvOpts.request, this.options.customErrorFn);
-      }
-
-      requestValidator.validate(request);
-    };
+  async getSpec() {
+    if (!this.spec) {
+      this.spec = await this.loadSpec(this.options.apiSpec);
+    }
+    return this.spec;
   }
 
-  public async compileValidator(): Promise<void> {
-    const specAsync = this.loadSpec(this.options.apiSpec);
-    const spec = await specAsync;
-    const ajvOpts = this.ajvOpts.preprocessor;
-    const { SchemaPreprocessor } = require('./middlewares/parsers/schema.preprocessor');
-    new SchemaPreprocessor(spec, ajvOpts).preProcess();
-    const requestValidator = new RequestValidator(spec, this.ajvOpts.request, this.options.customErrorFn);
-    await requestValidator.compile(this.options.compiledFilePath);
+  createValidator(): (request: OpenApiRequest) => Promise<ValidationResult> {
+
+    let requestValidator: RequestValidator;
+    return async (request: OpenApiRequest): Promise<ValidationResult> => {
+      if (!requestValidator) {
+        const spec = await this.getSpec();
+        // [skip_preprocess]
+        // const ajvOpts = this.ajvOpts.preprocessor;
+        // const { SchemaPreprocessor } = require('./middlewares/parsers/schema.preprocessor');
+        // new SchemaPreprocessor(spec, ajvOpts).preProcess();
+        requestValidator = new RequestValidator(spec, this.ajvOpts.request, this.options.customErrorFn);
+      }
+      const result = requestValidator.validate(request);
+      return result;
+    };
   }
 
   private async loadSpec(schemaOrPath: Promise<object> | string | object): Promise<OpenAPIV3.Document> {
@@ -82,23 +80,20 @@ export class OpenApiValidator {
     $ref.pathType = 'http';
     handler.schema = $ref.value;
     dereference(handler, { parse: {}, dereference: { excludedPathMatcher: () => false } });
-    return Object.assign(handler.schema);
+    return Object.assign(handler.schema as unknown as Object);
   }
 
-  public async loadValidator(): Promise<(request: OpenApiRequest) => Promise<void>> {
-    const requestValidator = new RequestValidator(null, this.ajvOpts.request, this.options.customErrorFn);
-    await requestValidator.loadCompiled(this.options.compiledFilePath);
-    return async (request: OpenApiRequest): Promise<void> => {
-      await requestValidator.validate(request);
-    };
-  }
+  // public async loadValidator(): Promise<(request: OpenApiRequest) => Promise<void>> {
+  //   const requestValidator = new RequestValidator(null, this.ajvOpts.request, this.options.customErrorFn);
+  //   await requestValidator.loadCompiled(this.options.compiledFilePath);
+  //   return async (request: OpenApiRequest): Promise<void> => {
+  //     await requestValidator.validate(request);
+  //   };
+  // }
 
   private validateOptions(options: OpenApiValidatorOpts): void {
     if (!options.apiSpec && !options.compiledFilePath) {
       throw Error('apiSpec required');
-    }
-    if (!options.customErrorFn) {
-      throw Error('customErrorFn required');
     }
   }
 
@@ -107,13 +102,13 @@ export class OpenApiValidator {
       options.serDes = defaultSerDes;
     } else {
       defaultSerDes.forEach(currentDefaultSerDes => {
-        const defaultSerDesOverride = options.serDes.find(
+        const defaultSerDesOverride = options.serDes!.find(
           currentOptionSerDes => {
             return currentDefaultSerDes.format === currentOptionSerDes.format;
           }
         );
         if (!defaultSerDesOverride) {
-          options.serDes.push(currentDefaultSerDes);
+          options.serDes!.push(currentDefaultSerDes);
         }
       });
     }

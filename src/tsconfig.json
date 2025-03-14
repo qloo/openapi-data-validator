@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "incremental": false,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ESNext",
+    "outDir": "../build",
+		"declaration": true,
+    "rootDir": "./",
+    "removeComments": true,
+		"sourceMap": true,
+    "strict": true,                           
+    "allowSyntheticDefaultImports": true, /* allows import of old require() npm packages */
+    "esModuleInterop": true,              /* allows import of old require() npm packages */
+  },
+
+  "include": [
+		"*.ts",
+    "*/**/*.ts"
+  ]
+}

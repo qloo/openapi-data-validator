@@ -1,18 +1,15 @@
 {
   "name": "@qloo/openapi-data-validator",
-  "version": "0.2.0",
-  "description": "Automatically validate API requests and responses with OpenAPI 3.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "version": "0.3.0",
+  "description": "Validate, coerce types, fill defaults for API requests using OpenAPI 3.0",
+  "main": "build/index.js",
   "files": [
-    "dist"
+    "build"
   ],
+  "typings": "build/index.d.ts",
   "scripts": {
-    "build": "rm -rf dist/ && tsc",
-		"release": "npm publish --registry=https://npm.pkg.github.com/",
-    "test": "tsc && mocha tests/*.test.js -R spec",
-    "lint": "eslint --ext .js,.ts src tests make.js",
-    "profile": "rm isolate-* && node --prof integrationTests/modelValidator.test.js && node --prof-process ./isolate* > results.txt && xdg-open results.txt"
+    "build": "rm -rf build/ && npx tsc && echo 'done building'",
+    "release": "npm publish --registry=https://npm.pkg.github.com/"
   },
   "repository": {
     "type": "git",
@@ -21,62 +18,16 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   },
-  "keywords": [
-    "swagger",
-    "openapi",
-    "openapi 3",
-    "openapi validator",
-    "expressjs",
-    "express",
-    "request validation",
-    "response validation",
-    "middleware",
-    "nodejs",
-    "javascript"
-  ],
   "author": "Qloo",
   "license": "Apache-2.0",
-  "dependencies": {
-    "@apidevtools/json-schema-ref-parser": "^9.0",
-    "ajv": "^8.5",
-    "ajv-formats": "^2.1",
-    "content-type": "^1.0",
-    "lodash.clonedeep": "^4.5",
-    "lodash.get": "^4.4",
-    "media-typer": "^1.1",
-    "require-from-string": "^2.0.2"
-  },
   "devDependencies": {
-    "@babel/core": "^7.15.8",
-    "@babel/eslint-parser": "^7.15.8",
-    "@types/ajv": "^1.0.0",
-    "@types/mocha": "^8.2.2",
-    "@types/node": "^15.3.1",
-    "@typescript-eslint/eslint-plugin": "^5.3.0",
-    "@typescript-eslint/parser": "^5.3.0",
-    "chai": "^4.3.4",
-    "ci-build-tools": "^1.0.13",
-    "commander": "^7.2.0",
-    "coveralls": "^3.1.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-promise": "^7.2.1",
-    "error-object-polyfill": "^1.1.14",
-    "eslint-config-cimpress-atsquad": "^1.0.67",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-mocha": "^8.0.0",
-    "eslint-plugin-node": "^11.1.0",
-    "fs-extra": "^10.0.0",
-    "luxon": "^2.0.2",
-    "mocha": "^8.4.0",
-    "nodemon": "^2.0.13",
-    "sinon": "^11.1.2",
-    "source-map-support": "0.5.19",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.4.4",
-    "yaml-js": "^0.3.1"
+    "@types/node": "^22.13.5",
+    "typescript": "^5.8.2"
   },
-  "engines": {
-    "node": ">=14.5.0"
+  "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^11.9.3",
+    "ajv": "^8.17.1",
+    "ajv-errors": "^3.0.0",
+    "ajv-formats": "^3.0.1"
   }
 }
-
